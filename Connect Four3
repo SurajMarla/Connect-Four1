@@ -1,54 +1,73 @@
-def main(): 
-    """ the main user-interaction loop"""
-    filename = input('Enter the name of the data file: ') 
-    while True: 
-        print() 
-        city = str(input('Enter city: ')) 
-        print() 
-        if city == 'quit': 
-            break 
+#
+# ps9pr3.py  (Problem Set 9, Problem 3)
+#
+# Playing the game 
+#   
 
-       
-        state = str(input('Enter state abbreviation: ')) 
-        print() 
-        
-        process(filename, city, state) 
-        
-def process(filename, city, state): 
-    '''takes three inputs and returns city and state info based on user inputs'''
-    filename = open(filename, 'r') 
-    count = 0 
-    for line in filename: 
-        line = line[:-1] 
-        fields = line.split(',') 
-        pop = float(fields[4]) * 1000 
-        pop = int(pop) 
-        if fields[2] == city and fields[3] == state:
-            print(fields[0] + '\t' + '     ' + fields[1] + ' ' + '\t' + ' ' + format(pop, '10,d'))
-            count += 1 
-    if count == 0: 
-        print('no results found for',city,',',state)
-
-        
-           
-
-def find(c,words): 
-    lc  = [(len(x), x) for x in words if x[0] == c] 
-    max_pair = max(lc)
-    return max_pair[1]
-s = 'hi you'
-print(s[:3:-1])
-
-def test1(n):
-    if n!= 3 and n!= 2 and n!=5 and n!= 9:
-        print('finsished') 
-        
-
+from ps9pr1 import Board
+from ps9pr2 import Player
+import random
     
+def connect_four(p1, p2):
+    """ Plays a game of Connect Four between the two specified players,
+        and returns the Board object as it looks at the end of the game.
+        inputs: p1 and p2 are objects representing Connect Four
+          players (objects of the class Player or a subclass of Player).
+          One player should use 'X' checkers and the other player should
+          use 'O' checkers.
+    """ 
+    # Make sure one player is 'X' and one player is 'O'.
+    if p1.checker not in 'XO' or p2.checker not in 'XO' \
+       or p1.checker == p2.checker:
+        print('need one X player and one O player.')
+        return None 
 
+    print('Welcome to Connect Four!') 
+    print() 
+    b = Board(6, 7) 
+    print(b) 
+    
+    while True:
+        if process_move(p1, b) == True:
+            return b
 
-            
-        
-        
+        if process_move(p2, b) == True:
+            return b
+
+def process_move(p, b): 
+    '''takes two parameters: a Player object p for the player whose move is 
+    being processed, and a Board object b for the board on which the game is being played. 
+    This will perform all of the steps involved in processing a single move by player p on board b'''
+    print(p.__repr__() + "'s turn") 
+    next_move = p.next_move(b) 
+    b.add_checker(p.checker, next_move) 
+    print() 
+    print(b) 
+    if b.is_win_for(p.checker): 
+         print(str(p) + ' wins in ' + str(p.num_moves) + ' moves.') 
+         print('Congratulations!') 
+         return True
+    elif b.is_full():
+         print("It's a tie!")
+         return True
+    else:
+         return False
+     
+
+class RandomPlayer(Player):
+    def next_move(self, b):
+        '''this version of next_move will choose at random one of the columns that are open for checker to be placed into'''
+        column = []
+        for x in range(b.width):
+            if b.can_add_to(x):  
+                column += [x] 
+        return random.choice(column) 
     
     
+    
+    
+    
+    
+    
+    
+     
