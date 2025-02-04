@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov  7 17:14:45 2024
-
-@author: surajmarla 
-""" 
 def main(): 
     """ the main user-interaction loop"""
     filename = input('Enter the name of the data file: ') 
