@@ -1,83 +1,172 @@
+#
+# ps9pr1.py (Problem Set 9, Problem 1)
+#
+# A Connect Four Board class
+#
+# Computer Science 111
+#
 
+class Board:
+    """ a data type for a Connect Four board with arbitrary dimensions
+    """   
+    ### add your constructor here ###
+    def __init__(self, height, width): 
+        self.height = height
+        self.width = width
+        self.slots = [[' '] * self.width for row in range(self.height)]
 
-import math
-
-class Rectangle:
-    def __init__(self, init_width, init_height, init_unit):
-        """ constructor for a Rectangle object with the specified dimensions 
-            init_width and init_height, and initial x and y coordinates of 0
-        """ 
-        self.x = 0
-        self.y = 0
-        self.width = init_width
-        self.height = init_height
-        self.unit = init_unit
-    
-    def grow(self, dwidth, dheight):
-        """ modifies the dimensions of the called Rectangle object
-            (the one given by self) by adding dwidth to the current width
-            and dheight to the current height.
-            Note that nothing needs to be returned. The changes are
-            made to the internals of the called object, and thus they 
-            will still be there after the method returns!
-        """
-        self.width += dwidth
-        self.height += dheight
-
-    def area(self):
-        """ computes and returns the area of the called Rectangle object
-        """
-        return self.width * self.height
-
-    def perimeter(self):
-        """ computes and returns the perimeter of the called Rectangle object
-        """
-        return 2*self.width + 2*self.height
-
-    def scale(self, factor):
-        """ modifies the dimensions of the called Rectangle object
-            by multiplying them by the specified factor.
-        """
-        self.width *= factor
-        self.height *= factor
-
-    def __eq__(self, other):
-        """ determines if the called Rectangle object (self) is 
-            equivalent to the Rectangle object given by other
-            note: the \ symbol at the end of the first line below 
-            allows us to continue that line onto the next line of the file.
-        """
-        if self.unit == other.unit and self.area() == other.area():
-            return True
-        else:
-            return False
 
     def __repr__(self):
-        """ creates and returns a string representation of the 
-            called Rectangle object
+        """ Returns a string that represents a Board object.
+        """ 
+        s = ''         #  begin with an empty string
+
+        # add one row of slots at a time to s 
+        for row in range(self.height):
+            s += '' + '|' + ''  # one vertical bar at the start of the row
+
+            for col in range(self.width):
+                s += self.slots[row][col] + '|'
+
+            s += '\n'  # newline at the end of the row
+
+        ### add your code here ###
+        for row in range((self.width * 2) + 1): 
+             s += '' + '-' + ''
+        s += '\n' 
+            
+        for x in range(self.width): 
+            mod = x % 10
+            s += ' ' + str(mod) + ''
+        s += '\n' 
+        
+        return s
+            
+
+    def add_checker(self, checker, col):
+        """ adds the specified checker (either 'X' or 'O') to the
+            column with the specified index col in the called Board.
+            inputs: checker is either 'X' or 'O'
+                    col is a valid column index
         """
-        return (str(self.width) + ' ' + self.unit +' x ' + str(self.height) + ' ' + self.unit)
+        assert(checker == 'X' or checker == 'O')
+        assert(col >= 0 and col < self.width)
+        ### put the rest of the method here ###
+        row = 0 
+        while self.slots[row][col] == ' ': 
+            row += 1 
+            if row == self.height: 
+                break 
+        self.slots[row-1][col] = checker
+        
+            
     
-    def diagonal(self):
-        '''computes and returns the length of the called Rectangle object’s 
-        diagonal – i.e., the square root of the sum of the squares of the 
-        Rectangle‘s height and width'''
-        return math.sqrt((self.width**2) + (self.height**2))
+    ### add your reset method here ###
+    def reset(self):
+        '''resets the Board object on which it is called by setting all slots 
+        to contain a space character.'''
+        
+        for row in range(self.height):
+            for col in range(self.width):
+                self.slots[row][col] = ' ' 
+            
     
-    def larger_than(self, other): 
-        '''takes another Rectangle other as a parameter and that returns 
-        True if the called Rectangle object (the object given by self) 
-        has a larger perimeter than the perimeter of the Rectangle passed in 
-        for other, and False otherwise''' 
-        if self.perimeter() > other.perimeter() and self.unit == other.unit: 
+    def add_checkers(self, colnums):
+        """ takes a string of column numbers and places alternating
+            checkers in those columns of the called Board object,
+            starting with 'X'.
+            input: colnums is a string of valid column numbers
+        """
+        checker = 'X'   # start by playing 'X'
+
+        for col_str in colnums:
+            col = int(col_str)
+            if 0 <= col < self.width:
+                self.add_checker(checker, col)
+
+            if checker == 'X':
+                checker = 'O'
+            else:
+                checker = 'X'
+
+    ### add your remaining methods here
+    def can_add_to(self, col):
+        '''returns True if it is valid to place a checker in the column col 
+        on the calling Board object. Otherwise, it should return False.'''
+
+        for row in range(self.height): 
+            if 0 <= col <= self.width - 1: 
+                if self.slots[row][col] == ' ' : 
+                    return True 
+                else: 
+                    return False 
+            else: 
+                return False 
+                
+    def is_full(self): 
+        '''returns True if the called Board object is completely full of checkers, 
+        and returns False otherwise.'''
+
+        for col in range(self.width): 
+            if self.can_add_to(col): 
+                return False 
+        return True 
+    
+    def remove_checker(self, col):
+        '''removes the top checker from column col of the called Board object. 
+        If the column is empty, then the method should do nothing'''
+        for row in range(self.height):
+            if self.slots[row][col]!= ' ':
+                self.slots[row][col] = ' '
+                break 
+    
+    def is_horizontal_win(self, checker):    
+        '''Checks for a horizontal win for the specified checker.'''
+        for row in range(self.height):
+            for col in range(self.width - 3):
+                if self.slots[row][col] == checker and \
+                   self.slots[row][col + 1] == checker and \
+                   self.slots[row][col + 2] == checker and \
+                   self.slots[row][col + 3] == checker:
+                    return True
+        return False 
+    
+    def is_vertical_win(self, checker): 
+        '''Checks for a vertical win for the specified checker.'''
+        for row in range(self.height - 3):
+            for col in range(self.width):
+                if self.slots[row][col] == checker and \
+                   self.slots[row + 1][col] == checker and \
+                   self.slots[row + 2][col] == checker and \
+                   self.slots[row + 3][col] == checker:
+                    return True
+        return False 
+    
+    def is_diagnol_win(self, checker): 
+        '''Checks for a diagnol win for the specified checker.'''
+        for row in range(3, self.height): 
+            for col in range(self.width - 3): 
+                if self.slots[row][col] == checker and \
+                   self.slots[row - 1][col + 1] == checker and \
+                   self.slots[row - 2][col + 2] == checker and \
+                   self.slots[row - 3][col + 3] == checker:
+                       return True
+        return False
+             
+                
+    
+    def is_win_for(self, checker): 
+        '''accepts a parameter checker that is either 'X' or 'O', and returns 
+        True if there are four consecutive slots containing checker on the board. 
+        Otherwise, it should return False.'''
+        
+        assert(checker == 'X' or checker == 'O')
+        if self.is_horizontal_win(checker) == True:
+            return True
+        elif self.is_vertical_win(checker) == True:
             return True 
+        elif self.is_diagnol_win(checker) == True:
+            return True
         else:
             return False 
-        
-        
-        
-        
-        
-        
-        
- 
+    
